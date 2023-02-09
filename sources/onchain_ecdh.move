@@ -50,7 +50,7 @@ module onchain_ecdh::onchain_ecdh {
     );
   }
 
-  public entry fun resend_key(public_key_board: &mut PublicKeyBoard, other_public_key: String, ctx: &mut TxContext) {
+  public entry fun reply_key(public_key_board: &mut PublicKeyBoard, other_public_key: String, ctx: &mut TxContext) {
     let sender = tx_context::sender(ctx);
     assert!(dof::exists_(&public_key_board.id, address::to_string(sender)), EExchangeNotInBoard);
     let exchange = dof::remove<String, Exchange>(&mut public_key_board.id, address::to_string(sender));
