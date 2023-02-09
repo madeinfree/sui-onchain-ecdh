@@ -17,7 +17,7 @@ module onchain_ecdh::onchain_ecdh {
     id: UID,
     sender: address,
     public_key: String,
-    other_public_key: String,
+    reply_public_key: String,
     status: u8
   }
 
@@ -44,19 +44,19 @@ module onchain_ecdh::onchain_ecdh {
         id: object::new(ctx),
         sender,
         public_key,
-        other_public_key: string::utf8(vector::empty()),
+        reply_public_key: string::utf8(vector::empty()),
         status: 1
       }
     );
   }
 
-  public entry fun reply_key(public_key_board: &mut PublicKeyBoard, other_public_key: String, ctx: &mut TxContext) {
+  public entry fun reply_key(public_key_board: &mut PublicKeyBoard, reply_public_key: String, ctx: &mut TxContext) {
     let sender = tx_context::sender(ctx);
     assert!(dof::exists_(&public_key_board.id, address::to_string(sender)), EExchangeNotInBoard);
     let exchange = dof::remove<String, Exchange>(&mut public_key_board.id, address::to_string(sender));
     assert!(exchange.status == 1, EExchangeStatusIncorrect);
     exchange.status = 2;
-    exchange.other_public_key = other_public_key;
+    exchange.reply_public_key = reply_public_key;
     dof::add(
       &mut public_key_board.id,
       address::to_string(sender),
@@ -67,7 +67,7 @@ module onchain_ecdh::onchain_ecdh {
   public entry fun destory_key(public_key_board: &mut PublicKeyBoard, receiver: address, ctx: &mut TxContext) {
     let sender = tx_context::sender(ctx);
     assert!(dof::exists_(&public_key_board.id, address::to_string(receiver)), EExchangeNotInBoard);
-    let Exchange { id, sender: _, public_key: _, other_public_key: _, status: _} = dof::remove<String, Exchange>(&mut public_key_board.id, address::to_string(sender));
+    let Exchange { id, sender: _, public_key: _, reply_public_key: _, status: _} = dof::remove<String, Exchange>(&mut public_key_board.id, address::to_string(sender));
     assert!(sender == sender, EShouldBeKeySender);
 
     object::delete(id);
