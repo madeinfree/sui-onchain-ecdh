@@ -23,6 +23,11 @@ module onchain_ecdh::onchain_ecdh {
   }
 
   ////////////////////////////////// Event //////////////////////////////////
+  struct BoardCreate has copy, drop {
+    id: ID,
+    creator: address
+  }
+
   struct SendKey has copy, drop {
     id: ID,
     sender: address,
@@ -45,11 +50,36 @@ module onchain_ecdh::onchain_ecdh {
   const EExchangeInBoard: u64 = 20;
 
   fun init(ctx: &mut TxContext) {
+    let id = object::new(ctx);
+    let sender = tx_context::sender(ctx);
+
+    emit(BoardCreate {
+      id: object::uid_to_inner(&id),
+      creator: sender
+    });
+
     let public_key_board = PublicKeyBoard {
-      id: object::new(ctx)
+      id
     };
 
     transfer::share_object(public_key_board);
+  }
+  
+  ////////////////// allow to create new public key board ////////////////////
+  public fun create_new_board(ctx: &mut TxContext) {
+    let id = object::new(ctx);
+    let sender = tx_context::sender(ctx);
+
+    emit(BoardCreate {
+      id: object::uid_to_inner(&id),
+      creator: sender
+    });
+
+    let public_key_board = PublicKeyBoard {
+      id
+    };
+
+    transfer::share_object(public_key_board)
   }
 
   public entry fun send_key(public_key_board: &mut PublicKeyBoard, public_key: String, receiver: address, ctx: &mut TxContext) {
